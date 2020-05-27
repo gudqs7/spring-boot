@@ -270,6 +270,7 @@ public class SpringApplication {
 		this.primarySources = new LinkedHashSet<>(Arrays.asList(primarySources));
 		this.webApplicationType = WebApplicationType.deduceFromClasspath();
 		setInitializers((Collection) getSpringFactoriesInstances(ApplicationContextInitializer.class));
+		// 这里加载了 spring.factories 下面的所有的 ApplicationListeners
 		setListeners((Collection) getSpringFactoriesInstances(ApplicationListener.class));
 		this.mainApplicationClass = deduceMainApplicationClass();
 	}
@@ -308,17 +309,23 @@ public class SpringApplication {
 			ConfigurableEnvironment environment = prepareEnvironment(listeners, applicationArguments);
 			configureIgnoreBeanInfo(environment);
 			Banner printedBanner = printBanner(environment);
+			// 根据 webApplicationType 判断具体ApplicationContext子类， 默认为 AnnotationConfigApplicationContext
 			context = createApplicationContext();
 			exceptionReporters = getSpringFactoriesInstances(SpringBootExceptionReporter.class,
 					new Class[] { ConfigurableApplicationContext.class }, context);
+			// 设置 context 和 register run传入的 primarySource (类似于 new AnnotationConfigApplication(clazz) 中的 register(clazz)
 			prepareContext(context, environment, listeners, applicationArguments, printedBanner);
+			//调用 context 的 refresh(), 触发BeanFactoryPostProcessor等.
 			refreshContext(context);
+			//留给子类的 afterRefresh() 钩子.
 			afterRefresh(context, applicationArguments);
 			stopWatch.stop();
 			if (this.logStartupInfo) {
 				new StartupInfoLogger(this.mainApplicationClass).logStarted(getApplicationLog(), stopWatch);
 			}
+			// 触发事件
 			listeners.started(context);
+			// 这个是调用 容器内所有的 ApplicationRunner 和 CommandLineRunner 实现类 (其实就是个加载完后的钩子, 不同之处与监听事件再处理 就在于, 可以跟方便的获取 参数).
 			callRunners(context, applicationArguments);
 		}
 		catch (Throwable ex) {
@@ -327,6 +334,7 @@ public class SpringApplication {
 		}
 
 		try {
+			// 大东西, 没法看.
 			listeners.running(context);
 		}
 		catch (Throwable ex) {
@@ -365,6 +373,16 @@ public class SpringApplication {
 
 	private void prepareContext(ConfigurableApplicationContext context, ConfigurableEnvironment environment,
 			SpringApplicationRunListeners listeners, ApplicationArguments applicationArguments, Banner printedBanner) {
+		// 1.设置环境变量， 使得 context 可以获取 application.yml 中的配置
+		// 2.调用子类扩展的设置
+		// 3.加载 容器的 initializers
+		// 4.触发 run 的 contextPrepared 事件
+		// 5.打印日志
+		// 6.添加spring boot 启动参数信息到 bean 容器中
+		// 7.设置beanFactory的 allowBeanDefinitionOverriding 属性
+		// 8.设置 懒加载策略， 添加 postProcessor 则会将每个 beanDefinition 的 lazyInit 设置为 true
+		// 9.根据配置的source（run方法参数可配置），将对应的source注入到 容器中。(简单说就是把启动类class封装成 BeanDefinition 放到容器中, 使得@Configuration之类的注解生效)
+		//10.触发 run 的 contextLoaded 事件
 		context.setEnvironment(environment);
 		postProcessApplicationContext(context);
 		applyInitializers(context);
