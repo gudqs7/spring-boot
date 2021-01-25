@@ -16,14 +16,10 @@
 
 package org.springframework.boot;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.springframework.core.env.SimpleCommandLinePropertySource;
 import org.springframework.util.Assert;
+
+import java.util.*;
 
 /**
  * Default implementation of {@link ApplicationArguments}.
@@ -71,7 +67,11 @@ public class DefaultApplicationArguments implements ApplicationArguments {
 	}
 
 	private static class Source extends SimpleCommandLinePropertySource {
-
+		/*
+			利用 SimpleCommandLinePropertySource 的 parse 方法
+			  解析类似 --spring.port=8080 的参数为 optionName: spring.port ; optionValue: 8080
+			  也就是key=value 转出 key:value 的键值对形式
+		 */
 		Source(String[] args) {
 			super(args);
 		}

@@ -16,17 +16,12 @@
 
 package org.springframework.boot.context.properties.source;
 
+import org.springframework.core.env.*;
+import org.springframework.core.env.PropertySource.StubPropertySource;
+import org.springframework.util.Assert;
+
 import java.util.Collections;
 import java.util.stream.Stream;
-
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertySource;
-import org.springframework.core.env.PropertySource.StubPropertySource;
-import org.springframework.core.env.PropertySources;
-import org.springframework.core.env.PropertySourcesPropertyResolver;
-import org.springframework.util.Assert;
 
 /**
  * Provides access to {@link ConfigurationPropertySource ConfigurationPropertySources}.
@@ -69,6 +64,7 @@ public final class ConfigurationPropertySources {
 	 * @see #get(Environment)
 	 */
 	public static void attach(Environment environment) {
+		// 为 environment 添加一个名为 configurationProperties 的源, 其作用是将每一个 PropertySource 适配成 ConfigurationPropertySource.
 		Assert.isInstanceOf(ConfigurableEnvironment.class, environment);
 		MutablePropertySources sources = ((ConfigurableEnvironment) environment).getPropertySources();
 		PropertySource<?> attached = sources.get(ATTACHED_PROPERTY_SOURCE_NAME);

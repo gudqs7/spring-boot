@@ -16,8 +16,6 @@
 
 package org.springframework.boot;
 
-import java.util.Collection;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -25,6 +23,8 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.core.Ordered;
+
+import java.util.Collection;
 
 /**
  * {@link BeanFactoryPostProcessor} to set lazy-init on bean definitions that are not
@@ -56,6 +56,8 @@ public final class LazyInitializationBeanFactoryPostProcessor implements BeanFac
 	private void postProcess(ConfigurableListableBeanFactory beanFactory,
 			Collection<LazyInitializationExcludeFilter> filters, String beanName,
 			AbstractBeanDefinition beanDefinition) {
+		// 若设置了 lazyInit, 则不处理, 否则根据 filters 判断是否需要设置懒加载, 若 beanType 被排除, 则不设置.
+		// 如 WebSocketMessageConverterConfiguration#eagerStompWebSocketHandlerMapping 创建的 filter 的作用就是排除 name 为 stompWebSocketHandlerMapping 的bean, 即立即加载此 bean
 		Boolean lazyInit = beanDefinition.getLazyInit();
 		if (lazyInit != null) {
 			return;

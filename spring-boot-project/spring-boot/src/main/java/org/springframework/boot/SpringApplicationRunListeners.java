@@ -113,6 +113,8 @@ class SpringApplicationRunListeners {
 
 	private void doWithListeners(String stepName, Consumer<SpringApplicationRunListener> listenerAction,
 			Consumer<StartupStep> stepAction) {
+		// 遍历持有的所有 SpringApplicationRunListener, 触发对应事件
+		// 在触发监听事件前后加入 StartupStep 监听所耗时间
 		StartupStep step = this.applicationStartup.start(stepName);
 		this.listeners.forEach(listenerAction);
 		if (stepAction != null) {

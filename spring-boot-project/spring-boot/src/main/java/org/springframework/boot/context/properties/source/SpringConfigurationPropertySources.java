@@ -16,14 +16,6 @@
 
 package org.springframework.boot.context.properties.source;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Random;
-import java.util.function.Function;
-
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
@@ -31,6 +23,9 @@ import org.springframework.core.env.PropertySource.StubPropertySource;
 import org.springframework.util.Assert;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.ConcurrentReferenceHashMap.ReferenceType;
+
+import java.util.*;
+import java.util.function.Function;
 
 /**
  * Adapter to convert Spring's {@link MutablePropertySources} to
@@ -46,6 +41,10 @@ class SpringConfigurationPropertySources implements Iterable<ConfigurationProper
 			ReferenceType.SOFT);
 
 	SpringConfigurationPropertySources(Iterable<PropertySource<?>> sources) {
+		// sources 就是 MutablePropertySources 类的数据
+		// 这波适配器模式是 实现 Iterable<ConfigurationPropertySource> 接口, 代表要 适配成的样子
+		// 而构造参数则代表 未适配前的样子
+		// 其中 adapt 为核心方法
 		Assert.notNull(sources, "Sources must not be null");
 		this.sources = sources;
 	}

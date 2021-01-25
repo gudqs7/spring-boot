@@ -27,5 +27,10 @@ package org.springframework.boot;
  * @see DefaultBootstrapContext
  */
 public interface ConfigurableBootstrapContext extends BootstrapRegistry, BootstrapContext {
+	/*
+	 继承的两个接口
+	BootstrapRegistry: 作用是加东西, 如 bean 对象, 和容器 close 事件的监听器
+	BootstrapContext:  作用是取东西, 即获取 bean 对象.
+	 */
 
 }
